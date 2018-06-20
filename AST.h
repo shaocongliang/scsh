@@ -20,9 +20,7 @@ struct ASTree{
     ASTree():left_(NULL), right_(NULL){
     }
 };
-ASTree* ConstructAbstractSyntaxTree(char **toks, char **toke);
-/**
- * Find a node which's right is empty
- */
-ASTree* findNodeWithRightLeaf(ASTree *root);
+typedef std::vector<std::string>::iterator Iterator;
+typedef std::vector<std::string>::const_iterator ConstIterator;
+ASTree* ConstructAbstractSyntaxTree(ConstIterator begin, ConstIterator end);
 #endif

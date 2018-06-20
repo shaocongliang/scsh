@@ -3,28 +3,21 @@
 #include <stdlib.h>
 #include <assert.h>
 
-ASTree* Parse1(char **p1, char **p2);
-ASTree* Parse2(char **p1, char **p2);
-ASTree* Parse3(char **p1, char **p2);
+
+ASTree* Parse1(ConstIterator iter1, ConstIterator iter2);
+ASTree* Parse2(ConstIterator iter1, ConstIterator iter2);
+ASTree* Parse3(ConstIterator iter1, ConstIterator iter2);
 
 struct ASTree *g_AST;
-ASTree* findNodeWithRightLeaf(ASTree *node) {
-    assert(node != nullptr);
-    if(node->right_ == nullptr) {
-        return node;
-    }
-    findNodeWithRightLeaf(node->right_);
-}
-
-ASTree* ConstructAbstractSyntaxTree(char **toks, char **toke){
-    char **p1 = toks;
-    char **p2 = toke;
-    while(p1 != p2) {
-        if(IsAny(**p1, ";&")) {
-           p1++; 
+ASTree* ConstructAbstractSyntaxTree(ConstIterator begin, ConstIterator end){
+    ConstIterator iter1 = begin;
+    ConstIterator iter2 = end;
+    while(iter1 != iter2) {
+        if(IsAny((*iter1)[0], ";&")) {
+            iter1++;
         }
         else {
-           return Parse1(p1, p2);
+           return Parse1(iter1, iter2);
         }
     }
     return nullptr;
@@ -32,12 +25,13 @@ ASTree* ConstructAbstractSyntaxTree(char **toks, char **toke){
 
 // 从左至右解析整个命令行，左子树下推
 // 右子树递归处理
-ASTree* Parse1(char **p1, char **p2) {
-   char **p;
+ASTree* Parse1(ConstIterator iter1, ConstIterator iter2)
+{
+   ConstIterator iter;
    int l = 0;
    struct ASTree *node = new ASTree(); 
-   for(p = p1; p != p2; p++) {
-       char c = **p;
+   for(iter = iter1; iter != iter2; iter++) {
+       char c = (*iter)[0];
        switch (c) {
             case '(':
                 l++;
@@ -53,8 +47,8 @@ ASTree* Parse1(char **p1, char **p2) {
                         g_AST = node;
                     }
                     node->type_ = CMDSEQ;
-                    node->left_ = Parse2(p1, p);
-                    node->right_ = ConstructAbstractSyntaxTree(p+1, p2);
+                    node->left_ = Parse2(iter1, iter);
+                    node->right_ = ConstructAbstractSyntaxTree(iter+1, iter2);
                 }
                 return node;
        }
@@ -64,13 +58,14 @@ ASTree* Parse1(char **p1, char **p2) {
 
 // 处理管道线类型，左边下推
 // 右边递归处理
-struct ASTree* Parse2(char **p1, char **p2) {
+ASTree* Parse2(ConstIterator iter1, ConstIterator iter2)
+{
     ASTree *node = new ASTree();
-    char **p;
     char c;
     int l = 0;
-    for(p = p1; p != p2; ++p) {
-       c = **p;
+    ConstIterator iter;
+    for(iter = iter1; iter != iter2; ++iter) {
+       c = (*iter)[0];
        switch(c) {
            case '(':
             l++;
@@ -82,28 +77,30 @@ struct ASTree* Parse2(char **p1, char **p2) {
            case '^':
            if(l == 0) {
                node->type_ = PIPE;
-               node->left_ = Parse3(p1, p);
-               node->right_ = Parse2(p+1, p2);
+               node->cmds_.push_back(*iter);
+               node->left_ = Parse3(iter1, iter);
+               node->right_ = Parse2(iter+1, iter2);
            }
+           return node;
        } 
     }
-    return Parse3(p1, p2);
+    return Parse3(iter1, iter2);
 }
-
-struct ASTree* Parse3(char **p1, char **p2) {
-    char **p;
+ASTree* Parse3(ConstIterator iter1, ConstIterator iter2)
+{
+    ConstIterator iter;
     char c;
     int i = 0;
     ASTree *node = new ASTree();
-    for(p = p1; p != p2; p++) {
-        c = **p;
+    for(iter = iter1; iter != iter2; iter++) {
+        c = (*iter)[0];
         switch(c) {
             case '>':
             case '<':
                 continue;
             default:
                 node->type_ = ELF;
-                node->cmds_.push_back(std::string(*p));
+                node->cmds_.push_back(*iter);
         }
     }
     return node;

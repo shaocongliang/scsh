@@ -9,11 +9,10 @@ const int LINE = 4096;
 const int MAXTOKS = 256;
 char buf[LINE];
 char *linep;
-char *toks[MAXTOKS];
 char **tokp;
 char peekc;
 int error;
-
+std::vector<std::string> toks;
 char GetChar()
 {
     char c;
@@ -30,7 +29,7 @@ char GetChar()
 
 void Token()
 {
-    *tokp++ = linep;
+    *tokp = linep;
     char c;
     char c1;
 TOKEN:
@@ -64,6 +63,7 @@ TOKEN:
     case '\n':
         *linep++ = c;
         *linep++ = 0;
+        toks.push_back(*tokp);
         return;
     }
     // Push Back non-meta character
@@ -80,24 +80,16 @@ NORMAL:
                 goto TOKEN;
             }
             *linep++ = 0;
+            toks.push_back(*tokp);
             return;
         }
         *linep++ = c;
-    }
-}
-void print()
-{
-    int i = 0;
-    for (char **p = toks; *p != 0; ++p)
-    {
-        printf("[%d] %s\n", i++, *p);
     }
 }
 void Interaction()
 {
     char *cp;
     linep = buf;
-    tokp = toks;
     do
     {
         cp = linep;
@@ -108,7 +100,7 @@ void Interaction()
         printf("syntax error\n");
         return;
     }
-    ASTree *ast = ConstructAbstractSyntaxTree(toks, tokp);
+    ASTree *ast = ConstructAbstractSyntaxTree(toks.cbegin(), toks.cend());
 }
 
 int main(int argc, char **argv)
@@ -116,7 +108,6 @@ int main(int argc, char **argv)
     for (;;)
     {
         Interaction();
-        print();
     }
     return 0;
 }
