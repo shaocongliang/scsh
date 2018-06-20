@@ -12,7 +12,6 @@ typedef enum{
 }NodeType;
 
 struct ASTree;
-
 struct ASTree{
     int type_;
     std::vector<std::string> cmds_;
@@ -21,7 +20,7 @@ struct ASTree{
     ASTree():left_(NULL), right_(NULL){
     }
 };
-int ConstructAbstractSyntaxTree(char **toks, char **toke);
+ASTree* ConstructAbstractSyntaxTree(char **toks, char **toke);
 /**
  * Find a node which's right is empty
  */

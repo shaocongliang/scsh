@@ -1,5 +1,5 @@
-#include "Util.h"
-#include "AST.h"
+#include <Util.h>
+#include <AST.h>
 
 #include <stdio.h>
 #include <unistd.h>
@@ -108,8 +108,7 @@ void Interaction()
         printf("syntax error\n");
         return;
     }
-    struct ASTree *past = NULL;
-    ConstructAbstractSyntaxTree(toks, tokp, &past);
+    ASTree *ast = ConstructAbstractSyntaxTree(toks, tokp);
 }
 
 int main(int argc, char **argv)
