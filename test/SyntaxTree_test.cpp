@@ -22,7 +22,7 @@ TEST(SyntaxTreeTest, SingleCMDTest)
     EXPECT_NE(nullptr, node);
     EXPECT_EQ(2, node->left_->cmds_.size());
     EXPECT_EQ(0, node->cmds_.size());
-    EXPECT_EQ(CMDSEQ, node->type_);
+    EXPECT_EQ(COMSEQ, node->type_);
 }
 
 int main(int argc, char **argv)
