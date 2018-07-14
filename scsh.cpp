@@ -2,6 +2,8 @@
 #include <AST.h>
 #include <Exec.h>
 
+#include <string>
+
 #include <stdio.h>
 #include <unistd.h>
 
@@ -99,9 +101,11 @@ void Interaction() {
 }
 
 int main(int argc, char **argv) {
-    char *prompt = "# ";
+    std::string prompt = "$ ";
+    uid_t uid = getuid();
+    if(uid == 0) prompt[0] = '#';
     for (;;) {
-        PutChar(prompt);
+        PutChar(prompt.c_str());
         Interaction();
     }
     return 0;

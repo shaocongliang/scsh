@@ -8,21 +8,15 @@
 #include <vector>
 #include <string>
 
-typedef enum {
-    PIPE = 1,
-    COMSEQ = 2,
-    LEFT_REDIRECT = 4,
-    RIGHT_REDIRECT = 8,
-    ELF = 16,
-    ARGUMENT = 32
-} NodeType;
+// 节点类型
+#define TELF 1
+#define TPIPE 2
+#define TLIST 4
 
-typedef enum {
-    REDIRECT = 1,
-    REDIRECT_APPEND = 2,
-    OUT = 4,
-    IN = 8
-} NodeArrtibute;
+// 节点属性
+#define FPIN 1
+#define FPOUT 2
+#define FCAT 4
 
 struct ASTree;
 

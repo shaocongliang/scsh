@@ -11,7 +11,7 @@ TEST(SyntaxTreeTest, PIPE_TEST)
 {
     std::vector<std::string> toks = {"cat", "nums", "|", "wc", "-l", "\n"};
     auto node = ConstructAbstractSyntaxTree(toks.cbegin(), toks.cend());
-    EXPECT_EQ(PIPE, node->left_->type_);
+    EXPECT_EQ(TPIPE, node->left_->type_);
     InorderPrintAST(node);
 }
 
@@ -22,7 +22,7 @@ TEST(SyntaxTreeTest, SingleCMDTest)
     EXPECT_NE(nullptr, node);
     EXPECT_EQ(2, node->left_->cmds_.size());
     EXPECT_EQ(0, node->cmds_.size());
-    EXPECT_EQ(COMSEQ, node->type_);
+    EXPECT_EQ(TLIST, node->type_);
 }
 
 int main(int argc, char **argv)
