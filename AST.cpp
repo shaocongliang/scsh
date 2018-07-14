@@ -12,7 +12,6 @@ ASTree* Parse1(ConstIterator iter1, ConstIterator iter2);
 ASTree* Parse2(ConstIterator iter1, ConstIterator iter2);
 ASTree* Parse3(ConstIterator iter1, ConstIterator iter2);
 
-struct ASTree *g_AST;
 ASTree* ConstructAbstractSyntaxTree(ConstIterator begin, ConstIterator end){
     ConstIterator iter1 = begin;
     ConstIterator iter2 = end;
@@ -47,9 +46,6 @@ ASTree* Parse1(ConstIterator iter1, ConstIterator iter2)
             case '&':
             case '\n':
                 if(l == 0) {
-                    if(g_AST == NULL) {
-                        g_AST = node;
-                    }
                     node->type_ = COMSEQ;
                     node->left_ = Parse2(iter1, iter);
                     node->right_ = ConstructAbstractSyntaxTree(iter+1, iter2);

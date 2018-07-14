@@ -93,7 +93,9 @@ void Interaction() {
         return;
     }
     ASTree *ast = ConstructAbstractSyntaxTree(toks.cbegin(), toks.cend());
-    Exec(ast, NULL, NULL);
+    Exec(ast, nullptr, nullptr);
+    delete ast;
+    toks.clear();
 }
 
 int main(int argc, char **argv) {
