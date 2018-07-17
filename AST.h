@@ -12,11 +12,16 @@
 #define TELF 1
 #define TPIPE 2
 #define TLIST 4
+#define TPAR 8
 
 // 节点属性
 #define FPIN 1
 #define FPOUT 2
 #define FCAT 4
+#define FINT 8
+#define FAND 16
+#define FPRS 32
+#define FPAR 64 // composite command
 
 struct ASTree;
 

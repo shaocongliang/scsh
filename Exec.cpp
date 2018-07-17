@@ -35,8 +35,10 @@ namespace detail {
 } // namespace detail
 
 void Exec(ASTree *Node, int *pin, int *pout) {
-    pid_t pid;
     int fd;
+    int attr;
+    pid_t pid;
+    char **argv = nullptr;
     std::string compath;
     if (Node == nullptr) {
         return;
@@ -47,52 +49,66 @@ void Exec(ASTree *Node, int *pin, int *pout) {
             if (compath.empty() == true) {
                 printf("no such file or directory\n");
                 return;
-            } else {
-                Node->cmds_[0] = compath;
-                char **argv = detail::StringVector2PoniterArray(Node->cmds_.begin(), Node->cmds_.end());
-                pid = fork();
-                if (pid == 0) {
-                    if (Node->right_) {
-                        if (Node->attribute_ & FCAT) {
-                            fd = open(Node->right_->cmds_[0].c_str(), 1);
-                            if (fd >= 0) {
-                                lseek(fd, 0, SEEK_END);
-                                goto f1;
-                            }
-                        }
-                        fd = creat(Node->right_->cmds_[0].c_str(), 0666);
-                        if (fd < 0) {
-                            printf("can't create\n");
-                            exit(-1);
-                        }
-                        f1:
-                        dup2(fd, STDOUT_FILENO);
-                        close(fd);
-                    }
-                    if (pout) {
-                        close(1);
-                        dup(*pout);
-                    }
-                    if (pin) {
-                        close(0);
-                        dup(*pin);
-                    }
-                    if (pout) close(*pout);
-                    if (pin) close(*pin);
-                    execv(compath.c_str(), argv);
-                } else if (pid > 0) {
-                    if (pout) close(*pout);
-                    if (pin) close(*pin);
-                    int ret = waitpid(pid, NULL, 0);
-                    if (ret < 0)
-                        printf("error\n");
-                }
             }
-            break;
+            Node->cmds_[0] = compath;
+            argv = detail::StringVector2PoniterArray(Node->cmds_.begin(), Node->cmds_.end());
+            attr = Node->attribute_;
+            pid = 0;
+            if ((attr & FPAR) == 0) {
+                printf("attribute %d\n", attr);
+                pid = fork();
+            }
+            if (pid == -1)
+                exit(-1);
+            if (pid > 0) {  // 父进程
+                if (pout) close(*pout);
+                if (pin) close(*pin);
+                if (attr & FPRS) printf("[%d]\n", pid);
+                if (attr & FAND)
+                    return;
+                int ret = waitpid(pid, NULL, 0);
+                if (ret < 0)
+                    printf("error\n");
+                return;
+            }
+            if (Node->right_) {
+                if (attr & FCAT) {
+                    fd = open(Node->right_->cmds_[0].c_str(), 1);
+                    if (fd >= 0) {
+                        lseek(fd, 0, SEEK_END);
+                        goto f1;
+                    }
+                }
+                fd = creat(Node->right_->cmds_[0].c_str(), 0666);
+                if (fd < 0) {
+                    printf("can't create\n");
+                    exit(-1);
+                }
+                f1:
+                dup2(fd, STDOUT_FILENO);
+                close(fd);
+            }
+            if ((attr & FINT) && !(Node->left_) && !(attr & FPIN)) {
+                fd = open("/dev/null", 0);
+                dup2(fd, STDIN_FILENO);
+                close(fd);
+            }
+            if (pout) {
+                close(1);
+                dup(*pout);
+            }
+            if (pin) {
+                close(0);
+                dup(*pin);
+            }
+            if (pout) close(*pout);
+            if (pin) close(*pin);
+            execv(compath.c_str(), argv);
+            return;
         case TLIST:
             Exec(Node->left_, nullptr, nullptr);
             Exec(Node->right_, nullptr, nullptr);
-            break;
+            return;
         case TPIPE:
             int pfd[2];
             pipe(pfd);
@@ -103,7 +119,7 @@ void Exec(ASTree *Node, int *pin, int *pout) {
             Node->right_->attribute_ |= FPIN | (attribute & (FPOUT));
             ASTree *right = Node->right_;
             Exec(right, &pfd[0], pout);
-            break;
+            return;
     }
 
 }
