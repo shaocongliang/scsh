@@ -66,10 +66,6 @@ void FindComFullPath(const std::string &com, std::string &fullpath)
    for(auto it : paths)
    {
        detail::findComFullPathImpl(it, com, fullpath);
-       if(fullpath.empty() == false)
-       {
-           return;
-       }
    }
    return;
 }

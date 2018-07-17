@@ -52,11 +52,13 @@ void Exec(ASTree *Node, int *pin, int *pout) {
                 char **argv = detail::StringVector2PoniterArray(Node->cmds_.begin(), Node->cmds_.end());
                 pid = fork();
                 if (pid == 0) {
-                    if (Node->attribute_ & FCAT) {
-                        fd = open(Node->right_->cmds_[0].c_str(), 1);
-                        if (fd >= 0) {
-                            lseek(fd, 0, SEEK_END);
-                            goto f1;
+                    if (Node->right_) {
+                        if (Node->attribute_ & FCAT) {
+                            fd = open(Node->right_->cmds_[0].c_str(), 1);
+                            if (fd >= 0) {
+                                lseek(fd, 0, SEEK_END);
+                                goto f1;
+                            }
                         }
                         fd = creat(Node->right_->cmds_[0].c_str(), 0666);
                         if (fd < 0) {
@@ -103,4 +105,5 @@ void Exec(ASTree *Node, int *pin, int *pout) {
             Exec(right, &pfd[0], pout);
             break;
     }
+
 }
