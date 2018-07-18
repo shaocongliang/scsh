@@ -51,7 +51,8 @@ void Token() {
                 *linep++ = c;
             }
             goto NORMAL;
-        case '(': // meta character
+        case ';':
+        case '(':
         case ')':
         case '&':
         case '|':

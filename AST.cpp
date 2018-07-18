@@ -27,7 +27,8 @@ ASTree *ConstructAbstractSyntaxTree(ConstIterator begin, ConstIterator end) {
     return nullptr;
 }
 
-
+#include <iostream>
+using namespace std;
 ASTree *Parse1(ConstIterator iter1, ConstIterator iter2) {
     ConstIterator iter;
     int l = 0;
