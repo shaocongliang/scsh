@@ -10,7 +10,6 @@
 using namespace std;
 
 const char *slash("/");
-
 void SplitString(const string &in, vector<string> &tokens, const std::string &delim)
 {
     std::string::size_type pos1, pos2;
@@ -85,6 +84,7 @@ void InorderPrintAST(const ASTree *node)
     if(node == nullptr) {
         return;
     }
+    if(node->sub_) InorderPrintAST(node->sub_);
     InorderPrintAST(node->left_);
     for(std::size_t i = 0; i < node->cmds_.size(); ++i) {
         cout << node->cmds_[i] << " ";

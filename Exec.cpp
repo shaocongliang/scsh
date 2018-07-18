@@ -44,18 +44,11 @@ void Exec(ASTree *Node, int *pin, int *pout) {
         return;
     }
     switch (Node->type_) {
+        case TPAR:
         case TELF:
-            FindComFullPath(Node->cmds_[0], compath);
-            if (compath.empty() == true) {
-                printf("no such file or directory\n");
-                return;
-            }
-            Node->cmds_[0] = compath;
-            argv = detail::StringVector2PoniterArray(Node->cmds_.begin(), Node->cmds_.end());
             attr = Node->attribute_;
             pid = 0;
             if ((attr & FPAR) == 0) {
-                printf("attribute %d\n", attr);
                 pid = fork();
             }
             if (pid == -1)
@@ -103,6 +96,19 @@ void Exec(ASTree *Node, int *pin, int *pout) {
             }
             if (pout) close(*pout);
             if (pin) close(*pin);
+
+            if(Node->sub_){
+                ASTree *n = Node->sub_;
+                Exec(n, pin, pout);
+                return;
+            }
+            FindComFullPath(Node->cmds_[0], compath);
+            if (compath.empty() == true) {
+                printf("no such file or directory\n");
+                return;
+            }
+            Node->cmds_[0] = compath;
+            argv = detail::StringVector2PoniterArray(Node->cmds_.begin(), Node->cmds_.end());
             execv(compath.c_str(), argv);
             return;
         case TLIST:

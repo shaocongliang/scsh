@@ -21,18 +21,18 @@
 #define FINT 8
 #define FAND 16
 #define FPRS 32
-#define FPAR 64 // composite command
+#define FPAR 64 // 复合命令
 
 struct ASTree;
 
 struct ASTree {
-    int type_;
-    int attribute_;
-    std::vector<std::string> cmds_;
-    ASTree *left_;
-    ASTree *right_;
-
-    ASTree() : left_(NULL), right_(NULL), type_(0), attribute_(0) {
+    int type_;         // 节点类型
+    int attribute_;   // 节点属性
+    std::vector<std::string> cmds_; // 命令字符串列表
+    ASTree *left_;   // 左子树
+    ASTree *right_;  // 左子树
+    ASTree *sub_;   // 复合命令节点
+    ASTree() : left_(NULL), right_(NULL), sub_(NULL), type_(0), attribute_(0) {
     }
 
     ~ASTree() {

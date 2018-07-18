@@ -14,7 +14,7 @@ char buf[LINE];
 char *linep;
 char *tokp[MAXTOKS];
 char peekc;
-int error;
+extern int error;
 
 std::vector<std::string> toks;
 

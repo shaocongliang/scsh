@@ -12,6 +12,8 @@ ASTree *Parse1(ConstIterator iter1, ConstIterator iter2);
 ASTree *Parse2(ConstIterator iter1, ConstIterator iter2);
 ASTree *Parse3(ConstIterator iter1, ConstIterator iter2);
 
+int error;
+
 ASTree *ConstructAbstractSyntaxTree(ConstIterator begin, ConstIterator end) {
     ConstIterator iter1 = begin;
     ConstIterator iter2 = end;
@@ -53,6 +55,12 @@ ASTree *Parse1(ConstIterator iter1, ConstIterator iter2) {
                 return node;
         }
     }
+    if(l == 0)
+        return Parse2(iter1, iter2);
+    else{
+        error++;
+        return nullptr;
+    }
     return node;
 }
 
@@ -84,8 +92,8 @@ ASTree *Parse2(ConstIterator iter1, ConstIterator iter2) {
                     node->left_ = Parse3(iter1, iter);
                     node->right_ = Parse2(iter + 1, iter2);
                     node->right_->attribute_ |= FPIN;
+                    return node;
                 }
-                return node;
         }
     }
     return Parse3(iter1, iter2);
@@ -100,7 +108,7 @@ ASTree *Parse2(ConstIterator iter1, ConstIterator iter2) {
 
 ASTree *Parse3(ConstIterator iter1, ConstIterator iter2) {
     ConstIterator iter;
-    ConstIterator left = iter2, right = iter2;
+    ConstIterator lb = iter2, rb = iter2; // left bracket; right bracket
     char c;
     int layer = 0;
     int error = 0;
@@ -117,13 +125,13 @@ ASTree *Parse3(ConstIterator iter1, ConstIterator iter2) {
         switch (c) {
             case '(':
                 layer++;
-                if(left != iter2) error++;
-                left = iter+1;
+                if(lb != iter2) error++;
+                lb = iter+1;
                 continue;
             case ')':
                 layer--;
-                if(right != iter2) error++;
-                right = iter;
+                if(rb != iter2) error++;
+                rb = iter;
                 continue;
             case '>':
                 iter++;
@@ -154,16 +162,23 @@ ASTree *Parse3(ConstIterator iter1, ConstIterator iter2) {
                 }
                 continue;
             default:
-                node->type_ = TELF;
-                node->cmds_.push_back(*iter);
+                if(layer == 0) {
+                    node->cmds_.push_back(*iter);
+                    ntok++;
+                }
         }
     }
-    if(left != iter2){
-        if(ntok != 0)
-            error++;
-        node->type_ |= TPAR;
+    if(lb != iter2) {
+        if (ntok != 0){
+            printf("invalid syntax\n");
+            exit(1);
+        }
+        node->type_ = TPAR;
+//        printf("lb %s\trb %s\n",(*lb).c_str(), (*rb).c_str());
+        node->sub_ = Parse1(lb, rb);
         goto OUT;
     }
+    node->type_ = TELF;
     OUT:
         node->left_ = input;
         node->right_ = output;
